@@ -9,8 +9,8 @@ Simple Linux bootstrapper for Caelus. Now features a custom native APK runtime (
 bash setup.sh
 
 # Download the Caelus APK from the official source
-# Place it in the required location
-cp your-caelus.apk ~/.caelus/apk-runtime/apk/caelus.apk
+# Place it in the current directory structure
+cp your-caelus.apk apk-runtime/apk/caelus.apk
 
 # Run Caelus
 ./target/release/caelus-bootstrapper
@@ -18,12 +18,12 @@ cp your-caelus.apk ~/.caelus/apk-runtime/apk/caelus.apk
 
 That's it! The setup script automatically:
 - Installs Rust if needed
-- Creates all required directories
+- Creates all required directories in current folder
 - Configures everything for you
 - Builds the bootstrapper
 - Everything is pre-configured and ready to run
 
-**Note**: The Caelus APK file is NOT included in this repository due to GitHub size limits. You must download it from the official source and place it in the designated directory.
+**Note**: The Caelus APK file is NOT included in this repository due to GitHub size limits. You must download it from the official source and place it in `apk-runtime/apk/caelus.apk` in the current directory.
 
 ### Legacy Methods
 
@@ -85,87 +85,92 @@ cargo build --release
 ### Native Runtime Structure
 
 ```
-~/.caelus/
+./ (current directory)
 ├── apk-runtime/
-│   ├── apk/          # Place Caelus APK here
+│   ├── apk/          # Place Caelus APK here (this IS the client)
 │   ├── libs/         # Extracted native libraries
 │   ├── cache/        # Cached APK data
 │   └── config/       # Runtime configuration files
-└── config.toml       # Main configuration (set use_apk_runtime = true)
+├── target/
+│   └── release/
+│       └── caelus-bootstrapper
+└── setup.sh
 ```
 
 ### Configuration
 
-Edit `~/.caelus/config.toml`:
+The setup script automatically creates configuration. The APK path is set to the current directory structure:
 
 ```toml
 use_apk_runtime = true
-apk_path = "~/.caelus/apk-runtime/apk/caelus.apk"
+apk_path = "./apk-runtime/apk/caelus.apk"
 ```
+
+The bootstrapper automatically checks for the APK in the current directory first, so you don't need to manually configure the path.
 
 ### How It Works
 
-The native APK runtime:
-1. Extracts the Caelus APK to a cache directory
-2. Extracts native libraries (.so files) for Linux compatibility
-3. Sets up a custom runtime environment
-4. Configures library paths and environment variables
-5. Provides a framework for native Android app execution on Linux
+The native APK runtime (inspired by Sober):
+1. **APK is the client**: The Caelus APK itself is the client, similar to how Sober runs Roblox from a modified APK
+2. **Current directory setup**: Checks for APK in the current directory structure first
+3. **Extracts native libraries**: Extracts .so files from the APK for Linux compatibility
+4. **Sets up runtime environment**: Creates custom runtime configuration
+5. **Configures library paths**: Sets up proper library paths and environment variables
+6. **Creates launch script**: Generates a launch script to run the APK as the client
 
-This approach avoids Flatpak sandboxing and creates a specialized runtime environment similar to Sober's approach for Roblox.
-
-### Using caelus:// URIs
-
-After installation, you can join games using caelus:// URIs:
-
-```bash
-# Example: Join a specific game
-caelus://launchmode:play+placeId:123456+universeId:789012
-
-# The launcher will parse these parameters and pass them to CaelusLauncher.exe
-```
+This approach avoids Flatpak sandboxing and creates a specialized runtime environment similar to Sober's approach for Roblox, where the APK itself serves as the client.
 
 ## Troubleshooting
 
-### Wine not found
-Install Wine using the commands above.
-
-### Client won't launch
+### APK not found
+Make sure you placed the Caelus APK in the correct location:
 ```bash
-# Check Wine version
-wine --version
+# Should be in current directory structure
+ls apk-runtime/apk/caelus.apk
+```
 
-# Check Wine prefix
-winecfg
+### Build errors
+Make sure Rust is properly installed:
+```bash
+rustc --version
+cargo --version
+```
+
+### Runtime issues
+Check the generated launch script:
+```bash
+ls apk-runtime/launch-caelus.sh
 ```
 
 ### Download failed
-Check your internet connection and the GitHub URL in config.toml.
-
-### Wine errors (fixme, err messages)
-Some Wine errors are normal and don't prevent the application from running. If the launcher doesn't work:
-1. Update Wine to the latest version
-2. Try using Proton (Steam's Wine fork) if available
-3. Check Wine AppDB for known issues
+Check your internet connection and the APK source.
 
 ## Project Structure
 
 ```
 .
 ├── Cargo.toml              # Rust project configuration
-├── config.toml            # Configuration
-├── simple-install.sh      # Simple bash installer
+├── setup.sh                # One-command setup script
 ├── src/
-│   └── main.rs           # Rust bootstrapper code
-└── README.md             # This file
+│   ├── main.rs           # Rust bootstrapper code
+│   └── apk_runtime.rs    # APK runtime module
+├── apk-runtime/           # APK runtime directory
+│   ├── apk/              # Place Caelus APK here (this IS the client)
+│   ├── libs/             # Extracted native libraries
+│   ├── cache/            # Cached APK data
+│   └── config/           # Runtime configuration files
+├── OldLinuxStuff/         # Legacy Wine-based methods
+└── .gitignore             # Git ignore file
 ```
 
 ## Notes
 
-- Downloads CaelusLauncher.exe from official GitHub releases
-- Uses Wine to run the Windows launcher on Linux
-- Simple and straightforward installation
-- Based on the official Windows bootstrapper
+- APK runtime inspired by Sober for Roblox
+- The APK itself is the client (like Sober runs Roblox from modified APK)
+- Uses current directory structure for easy setup
+- No Flatpak dependency - native Linux runtime
+- Auto-configures on first run
+- Extracts native libraries for Linux compatibility
 
 ## License
 

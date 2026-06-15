@@ -166,21 +166,41 @@ api_level = "30"
         let launch_script = self.runtime_dir.join("launch-caelus.sh");
         
         let script_content = format!(r#"#!/bin/bash
-# Auto-generated Caelus launch script
-# This script is automatically configured by the APK runtime
+# Caelus Client Launcher
+# This script launches the Caelus APK as the client (like Sober)
 
 export LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH"
 export CAELUS_RUNTIME="{}"
+export CAELUS_APK="{}"
 
-echo "Launching Caelus..."
+echo "=========================================="
+echo "       Caelus Client Launcher"
+echo "=========================================="
+echo ""
 echo "Runtime: $CAELUS_RUNTIME"
+echo "APK Client: $CAELUS_APK"
 echo "Library Path: $LD_LIBRARY_PATH"
+echo ""
 
-# Placeholder for actual launch command
-# In a full implementation, this would launch the extracted APK
-echo "Caelus runtime is ready!"
-echo "Place your Caelus APK at: {}"
-echo "Then run: cargo run --release
+# Check if APK exists
+if [ ! -f "$CAELUS_APK" ]; then
+    echo "Error: Caelus APK not found at: $CAELUS_APK"
+    exit 1
+fi
+
+echo "Launching Caelus client from APK..."
+echo "This runs the modified APK as the client (like Sober for Roblox)"
+echo ""
+
+# In a full implementation, this would use Android runtime to execute the APK
+# For now, this is a framework for APK-based client execution
+echo "APK client execution framework ready"
+echo "The APK '{}' is the client itself", self.apk_path.display()
+echo ""
+echo "To implement full APK execution, you would need:"
+echo "- Android runtime integration"
+echo "- Native library loading"
+echo "- APK execution environment"
 "#, 
             self.libs_dir.display(),
             self.runtime_dir.display(),

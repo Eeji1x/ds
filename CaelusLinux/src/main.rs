@@ -201,15 +201,30 @@ fn main() -> Result<()> {
     // Check if using APK runtime
     if config.use_apk_runtime {
         println!("Using APK runtime mode...");
-        let apk_path = PathBuf::from(&config.apk_path);
-        let base_dir = PathBuf::from(&config.install_dir);
         
-        let runtime = ApkRuntime::new(apk_path, base_dir);
+        // Try current directory first, then fallback to config path
+        let current_dir = std::env::current_dir()?;
+        let local_apk_path = current_dir.join("apk-runtime").join("apk").join("caelus.apk");
+        
+        let apk_path = if local_apk_path.exists() {
+            println!("Found APK in current directory: {}", local_apk_path.display());
+            local_apk_path
+        } else {
+            let config_apk_path = PathBuf::from(&config.apk_path);
+            println!("Checking config path: {}", config_apk_path.display());
+            config_apk_path
+        };
+        
+        let base_dir = current_dir.clone();
+        
+        let runtime = ApkRuntime::new(apk_path.clone(), base_dir);
         runtime.initialize()?;
         
         if !apk_path.exists() {
-            println!("APK not found at: {}", apk_path.display());
-            println!("Please place your Caelus APK at that location.");
+            println!("Caelus APK not found");
+            println!("Please place your Caelus APK at: {}", local_apk_path.display());
+            println!("Or at: {}", PathBuf::from(&config.apk_path).display());
+            println!("You can get the Caelus APK from the official source.");
             return Ok(());
         }
         

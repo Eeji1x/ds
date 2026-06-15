@@ -27,25 +27,26 @@ else
     echo -e "${GREEN}✓ Rust found${NC}"
 fi
 
-# Create directories
+# Create directories (in current directory)
 echo -e "${YELLOW}Creating directories...${NC}"
-mkdir -p ~/.caelus/apk-runtime/apk
-mkdir -p ~/.caelus/apk-runtime/libs
-mkdir -p ~/.caelus/apk-runtime/cache
-mkdir -p ~/.caelus/apk-runtime/config
-echo -e "${GREEN}✓ Directories created${NC}"
+CURRENT_DIR="$(pwd)"
+mkdir -p "$CURRENT_DIR/apk-runtime/apk"
+mkdir -p "$CURRENT_DIR/apk-runtime/libs"
+mkdir -p "$CURRENT_DIR/apk-runtime/cache"
+mkdir -p "$CURRENT_DIR/apk-runtime/config"
+echo -e "${GREEN}✓ Directories created in: $CURRENT_DIR${NC}"
 
 # Create auto-config
 echo -e "${YELLOW}Creating auto-configuration...${NC}"
 cat > ~/.caelus/config.toml << EOF
 client_url = "https://github.com/caelusinfra/windows-bootstrapper/releases/download/v2026.03.29.1453/CaelusLauncher.exe"
-install_dir = "$HOME/.caelus"
+install_dir = "$CURRENT_DIR"
 wine_prefix = "$HOME/.caelus/wine"
 wine_mode = 1
 enable_dxvk = true
 launch_args = ""
 use_apk_runtime = true
-apk_path = "$HOME/.caelus/apk-runtime/apk/caelus.apk"
+apk_path = "$CURRENT_DIR/apk-runtime/apk/caelus.apk"
 EOF
 echo -e "${GREEN}✓ Configuration created${NC}"
 
@@ -66,12 +67,13 @@ echo "The APK file is NOT included in this repository due to GitHub size limits.
 echo ""
 echo "Next steps:"
 echo "1. Download the Caelus APK from the official source"
-echo "2. Place it at: ~/.caelus/apk-runtime/apk/caelus.apk"
+echo "2. Place it at: $CURRENT_DIR/apk-runtime/apk/caelus.apk"
 echo "3. Run: ./target/release/caelus-bootstrapper"
 echo ""
 echo "The bootstrapper will automatically:"
-echo "- Extract the APK"
+echo "- Check for APK in current directory"
 echo "- Configure the runtime"
 echo "- Extract native libraries"
 echo "- Create launch scripts"
+echo "- The APK itself is the client (like Sober for Roblox)"
 echo "- Everything is pre-configured for easy use!"
