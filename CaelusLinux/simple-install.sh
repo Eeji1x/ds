@@ -172,21 +172,42 @@ echo "=========================================="
 echo "       Caelus Game Launcher"
 echo "=========================================="
 echo ""
-echo "Choose a game (put game id):"
-read -r GAME_ID
-
-if [ -z "$GAME_ID" ]; then
-    echo "No game ID provided"
-    exit 1
-fi
-
+echo "Choose an option:"
+echo "1. Launch Caelus (no specific game)"
+echo "2. Join specific game (requires game ID)"
 echo ""
-echo "Launching game ID: $GAME_ID..."
-echo ""
+read -r CHOICE
 
-# Launch with correct Caelus parameters
-# Based on supreme-dollop bootstrapper URI_KEY_ARG_MAP
-WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE" -placeId "$GAME_ID" --play
+case "$CHOICE" in
+    1)
+        echo ""
+        echo "Launching Caelus..."
+        WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE"
+        ;;
+    2)
+        echo ""
+        echo "Enter game ID:"
+        read -r GAME_ID
+
+        if [ -z "$GAME_ID" ]; then
+            echo "No game ID provided"
+            exit 1
+        fi
+
+        echo ""
+        echo "Attempting to join game: $GAME_ID..."
+        echo ""
+
+        # Try different parameter combinations
+        # First try as placeId
+        echo "Trying as placeId..."
+        WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE" -placeId "$GAME_ID" --play
+        ;;
+    *)
+        echo "Invalid choice"
+        exit 1
+        ;;
+esac
 
 echo ""
 echo "Game launched!"
