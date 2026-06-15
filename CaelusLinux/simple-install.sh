@@ -15,6 +15,8 @@ NC='\033[0m'
 # Configuration
 CLIENT_URL="https://github.com/caelusinfra/windows-bootstrapper/releases/download/v2026.03.29.1453/CaelusLauncher.exe"
 INSTALL_DIR="$HOME/.caelus"
+WINEPREFIX="$HOME/.caelus/wine"
+CAELUS_INSTALLER="$INSTALL_DIR/CaelusLauncher.exe"
 DESKTOP_DIR="$HOME/.local/share/applications"
 ICON_DIR="$HOME/.local/share/icons"
 SCRIPT_PATH="$INSTALL_DIR/caelus-launcher.sh"
@@ -45,73 +47,102 @@ mkdir -p "$INSTALL_DIR"
 
 # Download CaelusLauncher.exe
 echo -e "${YELLOW}Downloading CaelusLauncher.exe...${NC}"
-curl -L -o "$INSTALL_DIR/CaelusLauncher.exe" "$CLIENT_URL"
+curl -L -o "$CAELUS_INSTALLER" "$CLIENT_URL"
 
-echo -e "${GREEN}✓ Downloaded to $INSTALL_DIR/CaelusLauncher.exe${NC}"
+echo -e "${GREEN}✓ Downloaded to $CAELUS_INSTALLER${NC}"
+
+# Initialize Wine prefix
+echo -e "${YELLOW}Initializing Wine prefix...${NC}"
+if [ ! -d "$WINEPREFIX" ]; then
+    WINEPREFIX="$WINEPREFIX" wineboot --init
+    echo -e "${GREEN}✓ Wine prefix created${NC}"
+else
+    echo -e "${GREEN}✓ Wine prefix already exists${NC}"
+fi
+
+# Run the installer to install Caelus
+echo -e "${YELLOW}Installing Caelus (this may take a while)...${NC}"
+WINEPREFIX="$WINEPREFIX" wine "$CAELUS_INSTALLER"
+echo -e "${GREEN}✓ Caelus installation complete${NC}"
+
+# Find the installed Caelus executable
+echo -e "${YELLOW}Finding Caelus game executable...${NC}"
+CAELUS_EXE=$(find "$WINEPREFIX/drive_c" -name "CaelusPlayer.exe" -o -name "Caelus.exe" 2>/dev/null | head -n 1)
+
+if [ -z "$CAELUS_EXE" ]; then
+    echo -e "${RED}Could not find Caelus executable. Using installer as fallback.${NC}"
+    CAELUS_EXE="$CAELUS_INSTALLER"
+else
+    echo -e "${GREEN}✓ Found Caelus executable: $CAELUS_EXE${NC}"
+fi
 
 # Create launcher script
 echo -e "${YELLOW}Creating launcher script...${NC}"
-cat > "$SCRIPT_PATH" << 'EOF'
+cat > "$SCRIPT_PATH" << EOF
 #!/bin/bash
 # Caelus Launcher Script
 INSTALL_DIR="$HOME/.caelus"
+WINEPREFIX="$HOME/.caelus/wine"
+CAELUS_EXE="$CAELUS_EXE"
 
 # Handle caelus:// URIs
-if [[ "$1" == caelus://* ]]; then
+if [[ "\$1" == caelus://* ]]; then
     # Extract URI parameters and convert to command line args
-    URI="$1"
+    URI="\$1"
     ARGS=()
     
     # Parse URI parameters (format: caelus://key:value+key2:value2)
     # Remove caelus:// prefix
-    PARAMS="${URI#caelus://}"
+    PARAMS="\${URI#caelus://}"
     
     # Split by + and parse each parameter
-    IFS='+' read -ra PARAM_ARRAY <<< "$PARAMS"
-    for param in "${PARAM_ARRAY[@]}"; do
-        if [[ "$param" == *:* ]]; then
-            key="${param%%:*}"
-            value="${param#*:}"
+    IFS='+' read -ra PARAM_ARRAY <<< "\$PARAMS"
+    for param in "\${PARAM_ARRAY[@]}"; do
+        if [[ "\$param" == *:* ]]; then
+            key="\${param%%:*}"
+            value="\${param#*:}"
             
             # Map URI keys to command line arguments
-            case "$key" in
+            case "\$key" in
                 launchmode)
-                    ARGS+=("--$value")
+                    ARGS+=("--\$value")
                     ;;
                 gameinfo)
-                    ARGS+=("-t" "$value")
+                    ARGS+=("-t" "\$value")
                     ;;
                 placelauncherurl)
-                    ARGS+=("-j" "$value")
+                    ARGS+=("-j" "\$value")
                     ;;
                 launchtime)
-                    ARGS+=("--launchtime=$value")
+                    ARGS+=("--launchtime=\$value")
                     ;;
                 task)
-                    ARGS+=("-task" "$value")
+                    ARGS+=("-task" "\$value")
                     ;;
                 placeId)
-                    ARGS+=("-placeId" "$value")
+                    ARGS+=("-placeId" "\$value")
                     ;;
                 universeId)
-                    ARGS+=("-universeId" "$value")
+                    ARGS+=("-universeId" "\$value")
                     ;;
                 userId)
-                    ARGS+=("-userId" "$value")
+                    ARGS+=("-userId" "\$value")
                     ;;
                 *)
                     # Pass unknown parameters as-is
-                    ARGS+=("$key=$value")
+                    ARGS+=("\$key=\$value")
                     ;;
             esac
         fi
     done
     
     # Launch with parsed arguments
-    wine "$INSTALL_DIR/CaelusLauncher.exe" "${ARGS[@]}"
+    echo "Launching Caelus with game parameters..."
+    WINEPREFIX="\$WINEPREFIX" wine "\$CAELUS_EXE" "\${ARGS[@]}"
 else
     # Launch normally with provided arguments
-    wine "$INSTALL_DIR/CaelusLauncher.exe" "$@"
+    echo "Launching Caelus..."
+    WINEPREFIX="\$WINEPREFIX" wine "\$CAELUS_EXE" "\$@"
 fi
 EOF
 
@@ -154,5 +185,13 @@ echo "  - Launch Caelus from your application menu"
 echo "  - Use caelus:// URIs to join games"
 echo "  - Run manually: $SCRIPT_PATH"
 echo ""
-echo -e "${YELLOW}Launching Caelus now...${NC}"
-"$SCRIPT_PATH"
+
+# Ask user if they want to launch Caelus now
+echo -e "${YELLOW}Do you want to launch Caelus now? (y/n)${NC}"
+read -r response
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    echo -e "${YELLOW}Launching Caelus...${NC}"
+    "$SCRIPT_PATH"
+else
+    echo "You can launch Caelus later by running: $SCRIPT_PATH"
+fi
