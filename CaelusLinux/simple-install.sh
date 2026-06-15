@@ -20,6 +20,7 @@ CAELUS_INSTALLER="$INSTALL_DIR/CaelusLauncher.exe"
 DESKTOP_DIR="$HOME/.local/share/applications"
 ICON_DIR="$HOME/.local/share/icons"
 SCRIPT_PATH="$INSTALL_DIR/caelus-launcher.sh"
+LOCAL_LAUNCHER="./caelus.sh"
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  Caelus Linux Installer${NC}"
@@ -149,6 +150,50 @@ EOF
 chmod +x "$SCRIPT_PATH"
 echo -e "${GREEN}✓ Launcher script created${NC}"
 
+# Create simple local launcher in current directory
+echo -e "${YELLOW}Creating local launcher script...${NC}"
+cat > "$LOCAL_LAUNCHER" << 'EOF'
+#!/bin/bash
+# Caelus Local Launcher
+# Run this script to launch Caelus games
+
+WINEPREFIX="$HOME/.caelus/wine"
+INSTALL_DIR="$HOME/.caelus"
+
+# Find the Caelus executable
+CAELUS_EXE=$(find "$WINEPREFIX/drive_c" -name "CaelusPlayer.exe" -o -name "Caelus.exe" 2>/dev/null | head -n 1)
+
+if [ -z "$CAELUS_EXE" ]; then
+    echo "Caelus not found. Please run the installer first."
+    exit 1
+fi
+
+echo "=========================================="
+echo "       Caelus Game Launcher"
+echo "=========================================="
+echo ""
+echo "Choose a game (put game id):"
+read -r GAME_ID
+
+if [ -z "$GAME_ID" ]; then
+    echo "No game ID provided"
+    exit 1
+fi
+
+echo ""
+echo "Launching game ID: $GAME_ID..."
+echo ""
+
+# Launch with game parameters
+WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE" --game="$GAME_ID" --launchmode=play
+
+echo ""
+echo "Game launched!"
+EOF
+
+chmod +x "$LOCAL_LAUNCHER"
+echo -e "${GREEN}✓ Local launcher created: $LOCAL_LAUNCHER${NC}"
+
 # Create desktop entry
 echo -e "${YELLOW}Creating desktop entry...${NC}"
 mkdir -p "$DESKTOP_DIR"
@@ -179,19 +224,21 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "Caelus has been installed to: $INSTALL_DIR"
 echo "Desktop entry created: $DESKTOP_DIR/caelus.desktop"
+echo "Local launcher created: $LOCAL_LAUNCHER"
 echo ""
 echo "You can now:"
+echo "  - Run ./caelus.sh to launch games (enter any game ID)"
 echo "  - Launch Caelus from your application menu"
 echo "  - Use caelus:// URIs to join games"
 echo "  - Run manually: $SCRIPT_PATH"
 echo ""
 
 # Ask user if they want to launch Caelus now
-echo -e "${YELLOW}Do you want to launch Caelus now? (y/n)${NC}"
+echo -e "${YELLOW}Do you want to launch the game selector now? (y/n)${NC}"
 read -r response
 if [[ "$response" =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Launching Caelus...${NC}"
-    "$SCRIPT_PATH"
+    echo -e "${YELLOW}Launching game selector...${NC}"
+    "$LOCAL_LAUNCHER"
 else
-    echo "You can launch Caelus later by running: $SCRIPT_PATH"
+    echo "You can launch games later by running: $LOCAL_LAUNCHER"
 fi
