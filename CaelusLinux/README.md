@@ -1,13 +1,10 @@
 # Caelus Linux Bootstrapper
 
-Simple Linux bootstrapper for Caelus. Downloads CaelusLauncher.exe and runs it with Wine.
+Simple Linux bootstrapper for Caelus. Now features a custom native APK runtime (inspired by Sober) for running Caelus Android APK on Linux without Flatpak.
 
-## Quick Start (Simple Method)
-
-Just run the simple installer:
+## Quick Start (One-Command Setup)
 
 ```bash
-<<<<<<< HEAD
 # Run the automatic setup - everything is configured for you
 bash setup.sh
 
@@ -31,52 +28,22 @@ That's it! The setup script automatically:
 ### Legacy Methods
 
 The old Wine-based method and manual APK setup have been moved to `OldLinuxStuff/` for reference.
-=======
-# Download and run the simple installer
-bash simple-install.sh
-```
-
-That's it! It will:
-- Check Wine installation
-- Download CaelusLauncher.exe from GitHub releases
-- Install it to `~/.caelus/`
-- Create desktop entry for Linux integration
-- Register caelus:// URI scheme for game joining
-- Launch it with Wine
->>>>>>> parent of 67c3a41 (new shit)
 
 ## Requirements
 
-- **Wine**: Required to run Windows applications on Linux
+- **Rust**: Required to build the native APK runtime
+- **Caelus APK**: The Android APK file for Caelus
 
-### Install Wine
+### Install Rust
 
-**Ubuntu/Debian:**
 ```bash
-sudo dpkg --add-architecture i386
-sudo apt update
-sudo apt install wine64 wine32
-```
-
-**Fedora:**
-```bash
-sudo dnf install wine
-```
-
-**Arch:**
-```bash
-sudo pacman -S wine
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
 ```
 
 ## Advanced Method (Rust Build)
 
-If you want to build from source:
-
 ```bash
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-
 # Build
 cargo build --release
 
@@ -97,22 +64,55 @@ enable_dxvk = true
 launch_args = ""
 ```
 
-## What It Does
+## Native APK Runtime
 
-1. Checks Wine installation
-2. Downloads CaelusLauncher.exe from GitHub releases
-3. Installs it to `~/.caelus/`
-4. Creates desktop entry for Linux integration
-5. Registers caelus:// URI scheme for game joining
-6. Launches it using Wine
-7. No complex setup needed
+Inspired by [Sober](https://sober.vinegarhq.org), this bootstrapper features a custom native APK runtime for running Caelus Android APK on Linux without Flatpak dependencies.
 
-## Linux Features
+### Setup Native APK Runtime
 
-- **Desktop Integration**: Creates a desktop entry so you can launch Caelus from your application menu
-- **URI Scheme Support**: Registers caelus:// URIs for joining games directly from links
-- **Game Joining**: Parse URI parameters like placeId, universeId, userId for direct game joining
-- **System Integration**: Installs to standard Linux paths (~/.local/share/applications)
+```bash
+# Run the APK installer
+bash apk-install.sh
+
+# Place your Caelus APK in the required location
+cp your-caelus.apk ~/.caelus/apk-runtime/apk/caelus.apk
+
+# Build and run the Rust bootstrapper
+cargo build --release
+./target/release/caelus-bootstrapper
+```
+
+### Native Runtime Structure
+
+```
+~/.caelus/
+├── apk-runtime/
+│   ├── apk/          # Place Caelus APK here
+│   ├── libs/         # Extracted native libraries
+│   ├── cache/        # Cached APK data
+│   └── config/       # Runtime configuration files
+└── config.toml       # Main configuration (set use_apk_runtime = true)
+```
+
+### Configuration
+
+Edit `~/.caelus/config.toml`:
+
+```toml
+use_apk_runtime = true
+apk_path = "~/.caelus/apk-runtime/apk/caelus.apk"
+```
+
+### How It Works
+
+The native APK runtime:
+1. Extracts the Caelus APK to a cache directory
+2. Extracts native libraries (.so files) for Linux compatibility
+3. Sets up a custom runtime environment
+4. Configures library paths and environment variables
+5. Provides a framework for native Android app execution on Linux
+
+This approach avoids Flatpak sandboxing and creates a specialized runtime environment similar to Sober's approach for Roblox.
 
 ### Using caelus:// URIs
 

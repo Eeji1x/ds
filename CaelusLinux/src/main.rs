@@ -8,6 +8,9 @@ use std::path::PathBuf;
 use std::process::Command;
 use toml;
 
+mod apk_runtime;
+use apk_runtime::ApkRuntime;
+
 // Config struct - pretty simple stuff
 #[derive(Debug, Deserialize, Serialize)]
 struct Config {
@@ -17,6 +20,8 @@ struct Config {
     wine_mode: i32,
     enable_dxvk: bool,
     launch_args: String,
+    use_apk_runtime: bool,
+    apk_path: String,
 }
 
 impl Default for Config {
@@ -29,6 +34,8 @@ impl Default for Config {
             wine_mode: 1,
             enable_dxvk: true,
             launch_args: String::new(),
+            use_apk_runtime: false,
+            apk_path: home.join(".caelus/apk-runtime/apk/caelus.apk").to_string_lossy().to_string(),
         }
     }
 }
@@ -187,7 +194,30 @@ fn main() -> Result<()> {
     println!("  Client URL: {}", config.client_url);
     println!("  Install dir: {}", config.install_dir);
     println!("  Wine prefix: {}", config.wine_prefix);
+    println!("  APK runtime: {}", config.use_apk_runtime);
+    println!("  APK path: {}", config.apk_path);
     println!();
+    
+    // Check if using APK runtime
+    if config.use_apk_runtime {
+        println!("Using APK runtime mode...");
+        let apk_path = PathBuf::from(&config.apk_path);
+        let base_dir = PathBuf::from(&config.install_dir);
+        
+        let runtime = ApkRuntime::new(apk_path, base_dir);
+        runtime.initialize()?;
+        
+        if !apk_path.exists() {
+            println!("APK not found at: {}", apk_path.display());
+            println!("Please place your Caelus APK at that location.");
+            return Ok(());
+        }
+        
+        println!("APK info: {}", runtime.get_apk_info()?);
+        runtime.launch_native()?;
+        
+        return Ok(());
+    }
     
     // Check prerequisites
     println!("Checking prerequisites...");
