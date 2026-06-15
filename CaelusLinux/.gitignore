@@ -1,0 +1,23 @@
+# Caelus APK files (too large for GitHub)
+*.apk
+apk-runtime/apk/*.apk
+
+# Build artifacts
+target/
+Cargo.lock
+
+# Runtime cache
+apk-runtime/cache/*
+apk-runtime/libs/*
+
+# Configuration files (user-specific)
+config.toml
+apk-runtime/config/*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

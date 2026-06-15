@@ -7,6 +7,31 @@ Simple Linux bootstrapper for Caelus. Downloads CaelusLauncher.exe and runs it w
 Just run the simple installer:
 
 ```bash
+<<<<<<< HEAD
+# Run the automatic setup - everything is configured for you
+bash setup.sh
+
+# Download the Caelus APK from the official source
+# Place it in the required location
+cp your-caelus.apk ~/.caelus/apk-runtime/apk/caelus.apk
+
+# Run Caelus
+./target/release/caelus-bootstrapper
+```
+
+That's it! The setup script automatically:
+- Installs Rust if needed
+- Creates all required directories
+- Configures everything for you
+- Builds the bootstrapper
+- Everything is pre-configured and ready to run
+
+**Note**: The Caelus APK file is NOT included in this repository due to GitHub size limits. You must download it from the official source and place it in the designated directory.
+
+### Legacy Methods
+
+The old Wine-based method and manual APK setup have been moved to `OldLinuxStuff/` for reference.
+=======
 # Download and run the simple installer
 bash simple-install.sh
 ```
@@ -18,6 +43,7 @@ That's it! It will:
 - Create desktop entry for Linux integration
 - Register caelus:// URI scheme for game joining
 - Launch it with Wine
+>>>>>>> parent of 67c3a41 (new shit)
 
 ## Requirements
 
