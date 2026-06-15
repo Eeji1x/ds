@@ -1,0 +1,19 @@
+# Caelus Linux Bootstrapper Configuration
+
+# Direct download URL for CaelusLauncher.exe
+client_url = "https://github.com/caelusinfra/windows-bootstrapper/releases/download/v2026.03.29.1453/CaelusLauncher.exe"
+
+# Installation directory
+install_dir = "~/.caelus"
+
+# Wine prefix directory
+wine_prefix = "~/.wine"
+
+# Wine mode (1 = normal, 2 = virtual desktop, 3 = other)
+wine_mode = 1
+
+# Enable DXVK for better performance
+enable_dxvk = true
+
+# Additional launch arguments
+launch_args = ""
