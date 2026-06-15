@@ -6,8 +6,11 @@ client_url = "https://github.com/caelusinfra/windows-bootstrapper/releases/downl
 # Installation directory
 install_dir = "~/.caelus"
 
-# Wine prefix directory
-wine_prefix = "~/.wine"
+# Wine prefix directory (32-bit for better compatibility)
+wine_prefix = "~/.caelus/wine"
+
+# Wine architecture (win32 for better .NET compatibility)
+wine_arch = "win32"
 
 # Wine mode (1 = normal, 2 = virtual desktop, 3 = other)
 wine_mode = 1

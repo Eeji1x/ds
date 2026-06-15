@@ -63,10 +63,10 @@ echo -e "${GREEN}✓ Winetricks found${NC}"
 
 # Install required Wine components
 echo -e "${YELLOW}Installing required Wine components...${NC}"
-WINEPREFIX="$HOME/.wine" winetricks -q vcrun2019
-WINEPREFIX="$HOME/.wine" winetricks -q dotnet48
-WINEPREFIX="$HOME/.wine" winetricks -q msxml6
-WINEPREFIX="$HOME/.wine" winetricks -q corefonts
+WINEPREFIX="$HOME/.caelus/wine" WINEARCH=win32 winetricks -q vcrun2019
+WINEPREFIX="$HOME/.caelus/wine" WINEARCH=win32 winetricks -q dotnet48
+WINEPREFIX="$HOME/.caelus/wine" WINEARCH=win32 winetricks -q msxml6
+WINEPREFIX="$HOME/.caelus/wine" WINEARCH=win32 winetricks -q corefonts
 
 echo -e "${GREEN}✓ Wine components installed${NC}"
 
@@ -81,7 +81,7 @@ echo -e "${GREEN}✓ Downloaded to $INSTALL_DIR/CaelusLauncher.exe${NC}"
 
 # Launch with Wine
 echo -e "${YELLOW}Launching CaelusLauncher.exe with Wine...${NC}"
-WINEPREFIX="$HOME/.wine" wine "$INSTALL_DIR/CaelusLauncher.exe"
+WINEPREFIX="$HOME/.caelus/wine" WINEARCH=win32 wine "$INSTALL_DIR/CaelusLauncher.exe"
 
 echo ""
 echo -e "${GREEN}Done! Caelus should now be running.${NC}"
