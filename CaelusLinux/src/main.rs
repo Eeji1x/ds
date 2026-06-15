@@ -98,87 +98,6 @@ fn check_wine() -> Result<()> {
     }
 }
 
-// Check for winetricks (optional but nice to have)
-fn check_winetricks() -> Result<()> {
-    let output = Command::new("winetricks")
-        .arg("--version")
-        .output();
-    
-    match output {
-        Ok(output) => {
-            if output.status.success() {
-                println!("Found winetricks");
-                Ok(())
-            } else {
-                Err(anyhow::anyhow!("Winetricks command failed"))
-            }
-        }
-        Err(_) => {
-            println!("Winetricks not found (optional but recommended)");
-            Ok(())
-        }
-    }
-}
-
-// Install required Wine components using winetricks
-fn install_wine_components(config: &Config) -> Result<()> {
-    println!("Installing required Wine components...");
-    
-    let wine_prefix = &config.wine_prefix;
-    std::env::set_var("WINEPREFIX", wine_prefix);
-    
-    // Install vcrun2019
-    println!("Installing vcrun2019...");
-    let status = Command::new("winetricks")
-        .arg("-q")
-        .arg("vcrun2019")
-        .status();
-    
-    match status {
-        Ok(s) if s.success() => println!("✓ vcrun2019 installed"),
-        _ => println!("! vcrun2019 installation had issues (may still work)"),
-    }
-    
-    // Install dotnet48
-    println!("Installing dotnet48...");
-    let status = Command::new("winetricks")
-        .arg("-q")
-        .arg("dotnet48")
-        .status();
-    
-    match status {
-        Ok(s) if s.success() => println!("✓ dotnet48 installed"),
-        _ => println!("! dotnet48 installation had issues (may still work)"),
-    }
-    
-    // Install msxml6
-    println!("Installing msxml6...");
-    let status = Command::new("winetricks")
-        .arg("-q")
-        .arg("msxml6")
-        .status();
-    
-    match status {
-        Ok(s) if s.success() => println!("✓ msxml6 installed"),
-        _ => println!("! msxml6 installation had issues (may still work)"),
-    }
-    
-    // Install corefonts
-    println!("Installing corefonts...");
-    let status = Command::new("winetricks")
-        .arg("-q")
-        .arg("corefonts")
-        .status();
-    
-    match status {
-        Ok(s) if s.success() => println!("✓ corefonts installed"),
-        _ => println!("! corefonts installation had issues (may still work)"),
-    }
-    
-    println!("Wine components installation complete");
-    Ok(())
-}
-
 // Download the CaelusLauncher.exe
 fn download_client(config: &Config) -> Result<()> {
     let client = Client::new();
@@ -274,11 +193,6 @@ fn main() -> Result<()> {
     println!("Checking prerequisites...");
     check_wine()
         .context("Wine check failed. Please install Wine.")?;
-    check_winetricks()
-        .context("Winetricks check failed.")?;
-    
-    // Install required Wine components
-    install_wine_components(&config)?;
     println!();
     
     // Check if client is already installed
