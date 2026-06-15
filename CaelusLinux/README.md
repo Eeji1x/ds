@@ -42,13 +42,7 @@ sudo apt update
 sudo apt install wine64 wine32 winetricks
 ```
 
-**Fedora (recommended - WineHQ):**
-```bash
-sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo
-sudo dnf install --allowerasing winehq-stable winetricks
-```
-
-**Fedora (from repos - may be older):**
+**Fedora:**
 ```bash
 sudo dnf install wine winetricks
 ```

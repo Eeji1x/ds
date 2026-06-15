@@ -14,7 +14,6 @@ struct Config {
     client_url: String,
     install_dir: String,
     wine_prefix: String,
-    wine_arch: String,
     wine_mode: i32,
     enable_dxvk: bool,
     launch_args: String,
@@ -27,7 +26,6 @@ impl Default for Config {
             client_url: "https://github.com/caelusinfra/windows-bootstrapper/releases/download/v2026.03.29.1453/CaelusLauncher.exe".to_string(),
             install_dir: home.join(".caelus").to_string_lossy().to_string(),
             wine_prefix: home.join(".caelus/wine").to_string_lossy().to_string(),
-            wine_arch: "win32".to_string(),
             wine_mode: 1,
             enable_dxvk: true,
             launch_args: String::new(),
@@ -127,9 +125,7 @@ fn install_wine_components(config: &Config) -> Result<()> {
     println!("Installing required Wine components...");
     
     let wine_prefix = &config.wine_prefix;
-    let wine_arch = &config.wine_arch;
     std::env::set_var("WINEPREFIX", wine_prefix);
-    std::env::set_var("WINEARCH", wine_arch);
     
     // Install vcrun2019
     println!("Installing vcrun2019...");
@@ -230,9 +226,7 @@ fn launch_client(config: &Config) -> Result<()> {
     
     // Set up wine environment
     let wine_prefix = &config.wine_prefix;
-    let wine_arch = &config.wine_arch;
     std::env::set_var("WINEPREFIX", wine_prefix);
-    std::env::set_var("WINEARCH", wine_arch);
     
     // Enable DXVK if configured
     if config.enable_dxvk {
@@ -274,7 +268,6 @@ fn main() -> Result<()> {
     println!("  Client URL: {}", config.client_url);
     println!("  Install dir: {}", config.install_dir);
     println!("  Wine prefix: {}", config.wine_prefix);
-    println!("  Wine arch: {}", config.wine_arch);
     println!();
     
     // Check prerequisites
