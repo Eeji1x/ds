@@ -15,6 +15,8 @@ That's it! It will:
 - Check Wine installation
 - Download CaelusLauncher.exe from GitHub releases
 - Install it to `~/.caelus/`
+- Create desktop entry for Linux integration
+- Register caelus:// URI scheme for game joining
 - Launch it with Wine
 
 ## Requirements
@@ -74,8 +76,28 @@ launch_args = ""
 1. Checks Wine installation
 2. Downloads CaelusLauncher.exe from GitHub releases
 3. Installs it to `~/.caelus/`
-4. Launches it using Wine
-5. No complex setup needed
+4. Creates desktop entry for Linux integration
+5. Registers caelus:// URI scheme for game joining
+6. Launches it using Wine
+7. No complex setup needed
+
+## Linux Features
+
+- **Desktop Integration**: Creates a desktop entry so you can launch Caelus from your application menu
+- **URI Scheme Support**: Registers caelus:// URIs for joining games directly from links
+- **Game Joining**: Parse URI parameters like placeId, universeId, userId for direct game joining
+- **System Integration**: Installs to standard Linux paths (~/.local/share/applications)
+
+### Using caelus:// URIs
+
+After installation, you can join games using caelus:// URIs:
+
+```bash
+# Example: Join a specific game
+caelus://launchmode:play+placeId:123456+universeId:789012
+
+# The launcher will parse these parameters and pass them to CaelusLauncher.exe
+```
 
 ## Troubleshooting
 
