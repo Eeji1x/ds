@@ -184,8 +184,9 @@ echo ""
 echo "Launching game ID: $GAME_ID..."
 echo ""
 
-# Launch with game parameters
-WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE" --game="$GAME_ID" --launchmode=play
+# Launch with correct Caelus parameters
+# Based on supreme-dollop bootstrapper URI_KEY_ARG_MAP
+WINEPREFIX="$WINEPREFIX" wine "$CAELUS_EXE" -placeId "$GAME_ID" --play
 
 echo ""
 echo "Game launched!"
